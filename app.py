@@ -30,9 +30,7 @@ def registra_datos():
     """Agrega datos a la tablas datos"""
     try:
         req = request.json
-        print("reg_dat: ", req)
         valUsuEmp = valida_usuario_empresa(req)
-        print("Valor UsuEmp", valUsuEmp)
         if valUsuEmp:
             verifica_alta_empresa(req["id_emp"])
             verifica_alta_usuario(req)
@@ -100,18 +98,13 @@ def verifica_alta_empresa(registro):
     """
     try:
         cursor = conexion.connection.cursor()
-        print("id_empresa: ", registro)
         sql = "SELECT * FROM empresas WHERE id_emp = {0}".format(registro)
-        print("sql:", sql)
         cursor.execute(sql)
         datos = cursor.fetchall()
         if len(datos) < 1:
-            print("La empresa NO existe")
             realiza_alta_empresa(registro)
             return True
         else:
-            print("datos:", len(datos))
-            print("La empresa existe")
             return False
     except Exception as ex:
         return jsonify({"Mensaje: ": "Error en verifica_alta_empresa"})
@@ -120,11 +113,8 @@ def verifica_alta_empresa(registro):
 def realiza_alta_empresa(registro):
     """Agrega Empresa de la consulta a la tabla empresas"""
     try:
-        print("func: realiza_alta_empresa")
         cursor = conexion.connection.cursor()
-        print("id_empresa: ", registro)
         sql = "INSERT INTO empresas ( id_emp) VALUES ( {0} )".format(registro)
-        print("sql:", sql)
         cursor.execute(sql)
         conexion.connection.commit()
     except Exception as ex:
@@ -136,22 +126,16 @@ def verifica_alta_usuario(registro):
         sino, invoca a la funcion que da el alta a la tabla usuarios
     """
     try:
-        print("func: verifica_alta_usuario")
         cursor = conexion.connection.cursor()
-        print("id_usuario: ", registro["id_usu"], type(registro["id_usu"]))
         sql = "SELECT * FROM usuarios WHERE id_usu = {0} and id_emp = {1}".format(
             registro["id_usu"], registro["id_emp"]
         )
-        print("sql:", sql)
         cursor.execute(sql)
         datos = cursor.fetchall()
         if len(datos) < 1:
-            print("el usuario NO existe")
             realiza_alta_usuario(registro)
             return True
         else:
-            print("cnt_usu:", len(datos))
-            print("El usuario existe")
             return False
     except Exception as ex:
         return jsonify({"Mensaje: ": "Error en verifica_alta_usuario"})
@@ -160,13 +144,10 @@ def verifica_alta_usuario(registro):
 def realiza_alta_usuario(registro):
     """Agrega Usuario de la consulta a la tabla usuarios"""
     try:
-        print("func: realiza_alta_usuario")
         cursor = conexion.connection.cursor()
-        print("id_usuario: ", registro["id_usu"], type(registro["id_usu"]))
         sql = "INSERT INTO usuarios ( id_usu, id_emp) VALUES ( {0}, {1} )".format(
             registro["id_usu"], registro["id_emp"]
         )
-        print("sql:", sql)
         cursor.execute(sql)
         conexion.connection.commit()
     except Exception as ex:
@@ -175,21 +156,15 @@ def realiza_alta_usuario(registro):
 
 def valida_usuario_empresa(registro):
     try:
-        print("func: valida_usuario_empresa")
-        print("Reg: usuEmp: ", registro["id_usu"], registro["id_emp"])
         cursor = conexion.connection.cursor()
         sql = "SELECT * FROM usuarios WHERE id_usu = {0} AND id_emp NOT IN ( {1} )".format(
             registro["id_usu"], registro["id_emp"]
         )
-        print("sql:", sql)
         cursor.execute(sql)
         datos = cursor.fetchall()
         if len(datos) > 0:
-            print("cant. UsuEmp:", len(datos))
-            print("El usuario Pertenece a otra Empresa")
             return False
         else:
-            print("el usuarioEmpresa es VALIDO")
             return True
     except Exception as ex:
         return jsonify({"Mensaje: ": "Error en valida_usuario_empresa"})
